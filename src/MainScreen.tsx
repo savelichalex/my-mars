@@ -78,12 +78,19 @@ export class MainScreen extends React.Component {
 					useNativeDriver: true,
 				}).start();
 				return;
-			}
-			if (factor > 0.5) {
-				Animated.spring(this.cards[index].cardHorizontalStatus, {
-					toValue: 1,
-					useNativeDriver: true,
-				}).start();
+			} else {
+				if (factor > 0.5) {
+					Animated.spring(this.cards[index].cardHorizontalStatus, {
+						toValue: 1,
+						useNativeDriver: true,
+					}).start();
+				}
+				if (factor < -0.5) {
+					Animated.spring(this.cards[index].cardHorizontalStatus, {
+						toValue: -1,
+						useNativeDriver: true,
+					}).start();
+				}
 				let secondIndex = index - 1;
 				if (secondIndex < 0) {
 					secondIndex = this.cards.length + secondIndex;
@@ -112,49 +119,14 @@ export class MainScreen extends React.Component {
 				if (hiddenIndex === this.cards.length) {
 					hiddenIndex = 0;
 				}
-				this.setState({ cardIndexInCenter: secondIndex }, () => {
-					this.cards[hiddenIndex].positionInStack.setValue(PositionInStack.Fourth);
-					this.cards[hiddenIndex].cardHorizontalStatus.setValue(HorizontalStatus.Center);
-				});
-				return;
-			}
-			if (factor < -0.5) {
-				Animated.spring(this.cards[index].cardHorizontalStatus, {
-					toValue: -1,
-					useNativeDriver: true,
-				}).start();
-				let secondIndex = index - 1;
-				if (secondIndex < 0) {
-					secondIndex = this.cards.length + secondIndex;
-				}
-				Animated.spring(this.cards[secondIndex].positionInStack, {
-					toValue: PositionInStack.Front,
-					useNativeDriver: true,
-				}).start();
-				let thirdIndex = index - 2;
-				if (thirdIndex < 0) {
-					thirdIndex = this.cards.length + thirdIndex;
-				}
-				Animated.spring(this.cards[thirdIndex].positionInStack, {
-					toValue: PositionInStack.Second,
-					useNativeDriver: true,
-				}).start();
-				let fourthIndex = index - 3;
-				if (fourthIndex < 0) {
-					fourthIndex = this.cards.length + fourthIndex;
-				}
-				Animated.spring(this.cards[fourthIndex].positionInStack, {
-					toValue: PositionInStack.Third,
-					useNativeDriver: true,
-				}).start();
-				let hiddenIndex = index + 1;
-				if (hiddenIndex === this.cards.length) {
-					hiddenIndex = 0;
-				}
-				this.setState({ cardIndexInCenter: secondIndex }, () => {
-					this.cards[hiddenIndex].positionInStack.setValue(PositionInStack.Fourth);
-					this.cards[hiddenIndex].cardHorizontalStatus.setValue(HorizontalStatus.Center);
-				});
+				this.cards[hiddenIndex].indexForData = this.state.currentIndex + 4;
+				this.setState(
+					{ cardIndexInCenter: secondIndex, currentIndex: this.state.currentIndex + 1 },
+					() => {
+						this.cards[hiddenIndex].positionInStack.setValue(PositionInStack.Fourth);
+						this.cards[hiddenIndex].cardHorizontalStatus.setValue(HorizontalStatus.Center);
+					}
+				);
 				return;
 			}
 		}
@@ -162,12 +134,14 @@ export class MainScreen extends React.Component {
 
 	getCardAnimations(
 		height: number,
+		index: number,
 		position: PositionInStack,
 		horizontal: HorizontalStatus = HorizontalStatus.Center
 	) {
 		const positionInStack = new Animated.Value(position);
 		const cardHorizontalStatus = new Animated.Value(horizontal);
 		return {
+			indexForData: index,
 			positionInStack,
 			scaleX: positionInStack.interpolate({
 				inputRange: [PositionInStack.Third, PositionInStack.Second, PositionInStack.Front],
@@ -192,16 +166,19 @@ export class MainScreen extends React.Component {
 		};
 	}
 	getCards = height => [
-		this.getCardAnimations(height, PositionInStack.Fourth),
-		this.getCardAnimations(height, PositionInStack.Third),
-		this.getCardAnimations(height, PositionInStack.Second),
-		this.getCardAnimations(height, PositionInStack.Front),
-		this.getCardAnimations(height, PositionInStack.Hidden, HorizontalStatus.Left),
+		this.getCardAnimations(height, 3, PositionInStack.Fourth),
+		this.getCardAnimations(height, 2, PositionInStack.Third),
+		this.getCardAnimations(height, 1, PositionInStack.Second),
+		this.getCardAnimations(height, 0, PositionInStack.Front),
+		this.getCardAnimations(height, null, PositionInStack.Hidden, HorizontalStatus.Left),
 	];
 	cards = this.getCards(0);
 
-	renderCardChildren(data) {
-		return <Text>{data}</Text>;
+	renderCardChildren(index) {
+		if (index < 0 || index >= this.data.length) {
+			return null;
+		}
+		return <Text>{this.data[index]}</Text>;
 	}
 
 	getZIndex = (index: number) => {
@@ -227,23 +204,29 @@ export class MainScreen extends React.Component {
 				}}>
 				<PanGestureHandler onGestureEvent={this.onPan} onHandlerStateChange={this.onPanStateChange}>
 					<View style={{ flex: 1 }}>
-						{this.cards.map((i, index) => (
-							<Animated.View
-								style={[
-									styles.card,
-									{
-										zIndex: this.getZIndex(index),
-										transform: [
-											{ scaleX: i.scaleX },
-											{ scaleY: i.scaleY },
-											{ translateX: i.translateX },
-											{ translateY: i.translateY },
-										],
-									},
-								]}>
-								<Text>Test {index}</Text>
-							</Animated.View>
-						))}
+						{this.cards.map((i, index) => {
+							if (i.indexForData < 0 || i.indexForData >= this.data.length) {
+								return null;
+							}
+							return (
+								<Animated.View
+									key={index}
+									style={[
+										styles.card,
+										{
+											zIndex: this.getZIndex(index),
+											transform: [
+												{ scaleX: i.scaleX },
+												{ scaleY: i.scaleY },
+												{ translateX: i.translateX },
+												{ translateY: i.translateY },
+											],
+										},
+									]}>
+									{this.renderCardChildren(i.indexForData)}
+								</Animated.View>
+							);
+						})}
 					</View>
 				</PanGestureHandler>
 				<View style={styles.buttonsWrapper}>
