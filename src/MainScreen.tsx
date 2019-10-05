@@ -8,16 +8,29 @@ import {
 } from 'react-native-gesture-handler';
 
 enum PositionInStack {
-	Front = 0,
-	Second = 1,
-	Third = 2,
+	Fourth = 0,
+	Third = 1,
+	Second = 2,
+	Front = 3,
+	Hidden = 4,
+}
+
+enum HorizontalStatus {
+	Left = -1,
+	Center = 0,
+	Right = 1,
 }
 
 const { width } = Dimensions.get('window');
 
 export class MainScreen extends React.Component {
+	data = Array(10)
+		.fill(null)
+		.map((_, index) => 'Image ' + index);
 	state = {
 		cardHeight: null,
+		cardIndexInCenter: 3,
+		currentIndex: 0,
 	};
 
 	cardStatus = new Animated.Value(0);
@@ -47,16 +60,18 @@ export class MainScreen extends React.Component {
 		extrapolate: 'clamp',
 	});
 
-	onPan = index => ({ nativeEvent: { translationX, state } }: PanGestureHandlerGestureEvent) => {
+	onPan = ({ nativeEvent: { translationX, state } }: PanGestureHandlerGestureEvent) => {
 		const factor = translationX / width;
+		const index = this.state.cardIndexInCenter;
 		this.cards[index].cardHorizontalStatus.setValue(factor);
 	};
 
-	onPanStateChange = index => ({
+	onPanStateChange = ({
 		nativeEvent: { translationX, state },
 	}: PanGestureHandlerStateChangeEvent) => {
 		const factor = translationX / width;
 		if (state === State.CANCELLED || state === State.END) {
+			const index = this.state.cardIndexInCenter;
 			if (Math.abs(factor) < 0.5) {
 				Animated.spring(this.cards[index].cardHorizontalStatus, {
 					toValue: 0,
@@ -69,16 +84,38 @@ export class MainScreen extends React.Component {
 					toValue: 1,
 					useNativeDriver: true,
 				}).start();
-				this.cards[index - 1] != null &&
-					Animated.spring(this.cards[index - 1].positionInStack, {
-						toValue: PositionInStack.Front,
-						useNativeDriver: true,
-					}).start();
-				this.cards[index - 2] != null &&
-					Animated.spring(this.cards[index - 2].positionInStack, {
-						toValue: PositionInStack.Second,
-						useNativeDriver: true,
-					}).start();
+				let secondIndex = index - 1;
+				if (secondIndex < 0) {
+					secondIndex = this.cards.length + secondIndex;
+				}
+				Animated.spring(this.cards[secondIndex].positionInStack, {
+					toValue: PositionInStack.Front,
+					useNativeDriver: true,
+				}).start();
+				let thirdIndex = index - 2;
+				if (thirdIndex < 0) {
+					thirdIndex = this.cards.length + thirdIndex;
+				}
+				Animated.spring(this.cards[thirdIndex].positionInStack, {
+					toValue: PositionInStack.Second,
+					useNativeDriver: true,
+				}).start();
+				let fourthIndex = index - 3;
+				if (fourthIndex < 0) {
+					fourthIndex = this.cards.length + fourthIndex;
+				}
+				Animated.spring(this.cards[fourthIndex].positionInStack, {
+					toValue: PositionInStack.Third,
+					useNativeDriver: true,
+				}).start();
+				let hiddenIndex = index + 1;
+				if (hiddenIndex === this.cards.length) {
+					hiddenIndex = 0;
+				}
+				this.setState({ cardIndexInCenter: secondIndex }, () => {
+					this.cards[hiddenIndex].positionInStack.setValue(PositionInStack.Fourth);
+					this.cards[hiddenIndex].cardHorizontalStatus.setValue(HorizontalStatus.Center);
+				});
 				return;
 			}
 			if (factor < -0.5) {
@@ -86,96 +123,95 @@ export class MainScreen extends React.Component {
 					toValue: -1,
 					useNativeDriver: true,
 				}).start();
-				this.cards[index - 1] != null &&
-					Animated.spring(this.cards[index - 1].positionInStack, {
-						toValue: PositionInStack.Front,
-						useNativeDriver: true,
-					}).start();
-				this.cards[index - 2] != null &&
-					Animated.spring(this.cards[index - 2].positionInStack, {
-						toValue: PositionInStack.Second,
-						useNativeDriver: true,
-					}).start();
+				let secondIndex = index - 1;
+				if (secondIndex < 0) {
+					secondIndex = this.cards.length + secondIndex;
+				}
+				Animated.spring(this.cards[secondIndex].positionInStack, {
+					toValue: PositionInStack.Front,
+					useNativeDriver: true,
+				}).start();
+				let thirdIndex = index - 2;
+				if (thirdIndex < 0) {
+					thirdIndex = this.cards.length + thirdIndex;
+				}
+				Animated.spring(this.cards[thirdIndex].positionInStack, {
+					toValue: PositionInStack.Second,
+					useNativeDriver: true,
+				}).start();
+				let fourthIndex = index - 3;
+				if (fourthIndex < 0) {
+					fourthIndex = this.cards.length + fourthIndex;
+				}
+				Animated.spring(this.cards[fourthIndex].positionInStack, {
+					toValue: PositionInStack.Third,
+					useNativeDriver: true,
+				}).start();
+				let hiddenIndex = index + 1;
+				if (hiddenIndex === this.cards.length) {
+					hiddenIndex = 0;
+				}
+				this.setState({ cardIndexInCenter: secondIndex }, () => {
+					this.cards[hiddenIndex].positionInStack.setValue(PositionInStack.Fourth);
+					this.cards[hiddenIndex].cardHorizontalStatus.setValue(HorizontalStatus.Center);
+				});
 				return;
 			}
 		}
 	};
 
+	getCardAnimations(
+		height: number,
+		position: PositionInStack,
+		horizontal: HorizontalStatus = HorizontalStatus.Center
+	) {
+		const positionInStack = new Animated.Value(position);
+		const cardHorizontalStatus = new Animated.Value(horizontal);
+		return {
+			positionInStack,
+			scaleX: positionInStack.interpolate({
+				inputRange: [PositionInStack.Third, PositionInStack.Second, PositionInStack.Front],
+				outputRange: [0.8, 0.9, 1],
+				extrapolate: 'clamp',
+			}),
+			scaleY: positionInStack.interpolate({
+				inputRange: [PositionInStack.Third, PositionInStack.Second, PositionInStack.Front],
+				outputRange: [0.92, 0.96, 1],
+				extrapolate: 'clamp',
+			}),
+			translateY: positionInStack.interpolate({
+				inputRange: [PositionInStack.Third, PositionInStack.Second, PositionInStack.Front],
+				outputRange: [-1 * (height * 0.04) - 32, -1 * (height * 0.02) - 16, 0],
+				extrapolate: 'clamp',
+			}),
+			cardHorizontalStatus,
+			translateX: cardHorizontalStatus.interpolate({
+				inputRange: [-1, 0, 1],
+				outputRange: [-width, 0, width],
+			}),
+		};
+	}
 	getCards = height => [
-		(() => {
-			const positionInStack = new Animated.Value(PositionInStack.Third);
-			const cardHorizontalStatus = new Animated.Value(0);
-			return {
-				positionInStack,
-				scaleX: positionInStack.interpolate({
-					inputRange: [PositionInStack.Front, PositionInStack.Second, PositionInStack.Third],
-					outputRange: [1, 0.9, 0.8],
-				}),
-				scaleY: positionInStack.interpolate({
-					inputRange: [PositionInStack.Front, PositionInStack.Second, PositionInStack.Third],
-					outputRange: [1, 0.96, 0.92],
-				}),
-				translateY: positionInStack.interpolate({
-					inputRange: [PositionInStack.Front, PositionInStack.Second, PositionInStack.Third],
-					outputRange: [0, -1 * (height * 0.02) - 16, -1 * (height * 0.04) - 32],
-				}),
-				cardHorizontalStatus,
-				translateX: cardHorizontalStatus.interpolate({
-					inputRange: [-1, 0, 1],
-					outputRange: [-width, 0, width],
-				}),
-			};
-		})(),
-		(() => {
-			const positionInStack = new Animated.Value(PositionInStack.Second);
-			const cardHorizontalStatus = new Animated.Value(0);
-			return {
-				positionInStack,
-				scaleX: positionInStack.interpolate({
-					inputRange: [PositionInStack.Front, PositionInStack.Second, PositionInStack.Third],
-					outputRange: [1, 0.9, 0.8],
-				}),
-				scaleY: positionInStack.interpolate({
-					inputRange: [PositionInStack.Front, PositionInStack.Second, PositionInStack.Third],
-					outputRange: [1, 0.96, 0.92],
-				}),
-				translateY: positionInStack.interpolate({
-					inputRange: [PositionInStack.Front, PositionInStack.Second, PositionInStack.Third],
-					outputRange: [0, -1 * (height * 0.02) - 16, -1 * (height * 0.04) - 32],
-				}),
-				cardHorizontalStatus,
-				translateX: cardHorizontalStatus.interpolate({
-					inputRange: [-1, 0, 1],
-					outputRange: [-width, 0, width],
-				}),
-			};
-		})(),
-		(() => {
-			const positionInStack = new Animated.Value(PositionInStack.Front);
-			const cardHorizontalStatus = new Animated.Value(0);
-			return {
-				positionInStack,
-				scaleX: positionInStack.interpolate({
-					inputRange: [PositionInStack.Front, PositionInStack.Second, PositionInStack.Third],
-					outputRange: [1, 0.9, 0.8],
-				}),
-				scaleY: positionInStack.interpolate({
-					inputRange: [PositionInStack.Front, PositionInStack.Second, PositionInStack.Third],
-					outputRange: [1, 0.96, 0.92],
-				}),
-				translateY: positionInStack.interpolate({
-					inputRange: [PositionInStack.Front, PositionInStack.Second, PositionInStack.Third],
-					outputRange: [0, -1 * (height * 0.02) - 16, -1 * (height * 0.04) - 32],
-				}),
-				cardHorizontalStatus,
-				translateX: cardHorizontalStatus.interpolate({
-					inputRange: [-1, 0, 1],
-					outputRange: [-width, 0, width],
-				}),
-			};
-		})(),
+		this.getCardAnimations(height, PositionInStack.Fourth),
+		this.getCardAnimations(height, PositionInStack.Third),
+		this.getCardAnimations(height, PositionInStack.Second),
+		this.getCardAnimations(height, PositionInStack.Front),
+		this.getCardAnimations(height, PositionInStack.Hidden, HorizontalStatus.Left),
 	];
 	cards = this.getCards(0);
+
+	renderCardChildren(data) {
+		return <Text>{data}</Text>;
+	}
+
+	getZIndex = (index: number) => {
+		const step = PositionInStack.Hidden - this.state.cardIndexInCenter;
+		const zIndex = index + step;
+		if (zIndex > PositionInStack.Hidden) {
+			return zIndex - PositionInStack.Hidden - 1;
+		}
+		return zIndex;
+	};
 
 	render() {
 		return (
@@ -189,27 +225,27 @@ export class MainScreen extends React.Component {
 					this.setState({ cardHeight: height });
 					this.cards = this.getCards(height);
 				}}>
-				{this.cards.map((i, index) => (
-					<PanGestureHandler
-						key={index}
-						onGestureEvent={this.onPan(index)}
-						onHandlerStateChange={this.onPanStateChange(index)}>
-						<Animated.View
-							style={[
-								styles.card,
-								{
-									transform: [
-										{ scaleX: i.scaleX },
-										{ scaleY: i.scaleY },
-										{ translateX: i.translateX },
-										{ translateY: i.translateY },
-									],
-								},
-							]}>
-							<Text>Test {index}</Text>
-						</Animated.View>
-					</PanGestureHandler>
-				))}
+				<PanGestureHandler onGestureEvent={this.onPan} onHandlerStateChange={this.onPanStateChange}>
+					<View style={{ flex: 1 }}>
+						{this.cards.map((i, index) => (
+							<Animated.View
+								style={[
+									styles.card,
+									{
+										zIndex: this.getZIndex(index),
+										transform: [
+											{ scaleX: i.scaleX },
+											{ scaleY: i.scaleY },
+											{ translateX: i.translateX },
+											{ translateY: i.translateY },
+										],
+									},
+								]}>
+								<Text>Test {index}</Text>
+							</Animated.View>
+						))}
+					</View>
+				</PanGestureHandler>
 				<View style={styles.buttonsWrapper}>
 					<View style={styles.buttonWrapper}>
 						<Animated.View
@@ -270,6 +306,7 @@ const styles = StyleSheet.create({
 		position: 'absolute',
 		bottom: -28,
 		flexDirection: 'row',
+		zIndex: PositionInStack.Hidden + 1,
 	},
 	buttonWrapper: {
 		flex: 1,
