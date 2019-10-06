@@ -13,4 +13,4 @@ YellowBox.ignoreWarnings(['`-[RCTRootView cancelTouches]']);
 
 import { MainScreen } from './src/MainScreen';
 
-export default MainScreen;
+AppRegistry.registerComponent('MainScreen', () => MainScreen);

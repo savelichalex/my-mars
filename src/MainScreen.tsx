@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Animated, View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { Animated, View, Text, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { MaterialIndicator } from 'react-native-indicators';
 import { Cards } from './Cards';
@@ -33,11 +33,13 @@ export class MainScreen extends React.Component<null, State> {
 	constructor(props) {
 		super(props);
 
+		const API_KEY = 'houOH3QDrs78RuJ32ZOxoZEmHZ9d1YUpabVdmBEp';
 		fetch(
-			'https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=1000&api_key=DEMO_KEY'
+			`https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=1000&api_key=${API_KEY}`
 		)
 			.then(res => res.json())
 			.then(res => {
+				if (res.error != null) throw res.error;
 				this.setState({
 					data: res.photos.map(({ camera, img_src, earth_date, rover }) => ({
 						imgSrc: img_src,
@@ -46,6 +48,9 @@ export class MainScreen extends React.Component<null, State> {
 						cameraName: camera.full_name,
 					})),
 				});
+			})
+			.catch(e => {
+				Alert.alert(e.code.split('_').join(' '), e.message);
 			});
 	}
 
@@ -83,16 +88,24 @@ export class MainScreen extends React.Component<null, State> {
 	};
 
 	render() {
+		const UndoText = (
+			<Text
+				style={[styles.headerUndo, { color: this.state.stack.length > 0 ? '#EB5757' : '#CFD8DC' }]}>
+				Undo
+			</Text>
+		);
 		return (
 			<View style={styles.container}>
 				<View style={styles.header}>
 					<View style={styles.headerItem}>
-						{this.state.stack.length > 0 && (
+						{this.state.stack.length > 0 ? (
 							<TouchableOpacity
 								onPress={this.undo}
 								hitSlop={{ left: 16, top: 16, right: 16, bottom: 16 }}>
-								<Text style={styles.headerUndo}>Undo</Text>
+								{UndoText}
 							</TouchableOpacity>
+						) : (
+							UndoText
 						)}
 					</View>
 					<View style={styles.headerItem}>
@@ -147,7 +160,6 @@ export class MainScreen extends React.Component<null, State> {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		marginVertical: 60,
 		position: 'relative',
 	},
 	header: {
@@ -163,7 +175,6 @@ const styles = StyleSheet.create({
 		fontWeight: '500',
 		fontSize: 16,
 		letterSpacing: 0.25,
-		color: '#EB5757',
 		marginLeft: 16,
 	},
 	headerTitle: {
@@ -205,7 +216,6 @@ const styles = StyleSheet.create({
 	bottomDescriptionWrapper: {
 		height: 20,
 		marginTop: 16,
-		marginBottom: 17,
 		alignItems: 'center',
 		justifyContent: 'center',
 	},

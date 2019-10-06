@@ -143,6 +143,7 @@ export class Cards extends React.Component<Props, State> {
 			}
 		}
 	};
+
 	getIndexes() {
 		const centerIndex = this.state.cardIndexInCenter;
 		let secondIndex = centerIndex - 1;
