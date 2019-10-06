@@ -1,5 +1,13 @@
 import * as React from 'react';
-import { Animated, View, Text, Dimensions, StyleSheet, LayoutChangeEvent } from 'react-native';
+import {
+	Animated,
+	View,
+	Text,
+	Dimensions,
+	StyleSheet,
+	LayoutChangeEvent,
+	TouchableOpacity,
+} from 'react-native';
 import {
 	PanGestureHandler,
 	PanGestureHandlerGestureEvent,
@@ -64,6 +72,7 @@ export class MainScreen extends React.Component {
 		const factor = translationX / width;
 		const index = this.state.cardIndexInCenter;
 		this.cards[index].cardHorizontalStatus.setValue(factor);
+		this.cardStatus.setValue(factor);
 	};
 
 	onPanStateChange = ({
@@ -71,54 +80,42 @@ export class MainScreen extends React.Component {
 	}: PanGestureHandlerStateChangeEvent) => {
 		const factor = translationX / width;
 		if (state === State.CANCELLED || state === State.END) {
-			const index = this.state.cardIndexInCenter;
+			const { centerIndex, secondIndex, thirdIndex, fourthIndex, hiddenIndex } = this.getIndexes();
+			Animated.spring(this.cardStatus, {
+				delay: 100,
+				toValue: 0,
+				useNativeDriver: true,
+			}).start();
 			if (Math.abs(factor) < 0.5) {
-				Animated.spring(this.cards[index].cardHorizontalStatus, {
+				Animated.spring(this.cards[centerIndex].cardHorizontalStatus, {
 					toValue: 0,
 					useNativeDriver: true,
 				}).start();
 				return;
 			} else {
-				if (factor > 0.5) {
-					Animated.spring(this.cards[index].cardHorizontalStatus, {
-						toValue: 1,
+				Animated.parallel([
+					factor > 0.5
+						? Animated.spring(this.cards[centerIndex].cardHorizontalStatus, {
+								toValue: HorizontalStatus.Right,
+								useNativeDriver: true,
+						  })
+						: Animated.spring(this.cards[centerIndex].cardHorizontalStatus, {
+								toValue: HorizontalStatus.Left,
+								useNativeDriver: true,
+						  }),
+					Animated.spring(this.cards[secondIndex].positionInStack, {
+						toValue: PositionInStack.Front,
 						useNativeDriver: true,
-					}).start();
-				}
-				if (factor < -0.5) {
-					Animated.spring(this.cards[index].cardHorizontalStatus, {
-						toValue: -1,
+					}),
+					Animated.spring(this.cards[thirdIndex].positionInStack, {
+						toValue: PositionInStack.Second,
 						useNativeDriver: true,
-					}).start();
-				}
-				let secondIndex = index - 1;
-				if (secondIndex < 0) {
-					secondIndex = this.cards.length + secondIndex;
-				}
-				Animated.spring(this.cards[secondIndex].positionInStack, {
-					toValue: PositionInStack.Front,
-					useNativeDriver: true,
-				}).start();
-				let thirdIndex = index - 2;
-				if (thirdIndex < 0) {
-					thirdIndex = this.cards.length + thirdIndex;
-				}
-				Animated.spring(this.cards[thirdIndex].positionInStack, {
-					toValue: PositionInStack.Second,
-					useNativeDriver: true,
-				}).start();
-				let fourthIndex = index - 3;
-				if (fourthIndex < 0) {
-					fourthIndex = this.cards.length + fourthIndex;
-				}
-				Animated.spring(this.cards[fourthIndex].positionInStack, {
-					toValue: PositionInStack.Third,
-					useNativeDriver: true,
-				}).start();
-				let hiddenIndex = index + 1;
-				if (hiddenIndex === this.cards.length) {
-					hiddenIndex = 0;
-				}
+					}),
+					Animated.spring(this.cards[fourthIndex].positionInStack, {
+						toValue: PositionInStack.Third,
+						useNativeDriver: true,
+					}),
+				]).start();
 				this.cards[hiddenIndex].indexForData = this.state.currentIndex + 4;
 				this.setState(
 					{ cardIndexInCenter: secondIndex, currentIndex: this.state.currentIndex + 1 },
@@ -131,6 +128,81 @@ export class MainScreen extends React.Component {
 			}
 		}
 	};
+	getIndexes() {
+		const centerIndex = this.state.cardIndexInCenter;
+		let secondIndex = centerIndex - 1;
+		if (secondIndex < 0) {
+			secondIndex = this.cards.length + secondIndex;
+		}
+		let thirdIndex = centerIndex - 2;
+		if (thirdIndex < 0) {
+			thirdIndex = this.cards.length + thirdIndex;
+		}
+		let fourthIndex = centerIndex - 3;
+		if (fourthIndex < 0) {
+			fourthIndex = this.cards.length + fourthIndex;
+		}
+		let hiddenIndex = centerIndex + 1;
+		if (hiddenIndex === this.cards.length) {
+			hiddenIndex = 0;
+		}
+		return {
+			centerIndex,
+			secondIndex,
+			thirdIndex,
+			fourthIndex,
+			hiddenIndex,
+		};
+	}
+
+	goBackFromLeft() {
+		const { hiddenIndex } = this.getIndexes();
+		this.cards[hiddenIndex].cardHorizontalStatus.setValue(HorizontalStatus.Left);
+		this.goBack();
+	}
+
+	goBackFromRight() {
+		const { hiddenIndex } = this.getIndexes();
+		this.cards[hiddenIndex].cardHorizontalStatus.setValue(HorizontalStatus.Right);
+		this.goBack();
+	}
+
+	private goBack() {
+		const { centerIndex, secondIndex, thirdIndex, fourthIndex, hiddenIndex } = this.getIndexes();
+		Animated.parallel([
+			Animated.spring(this.cards[hiddenIndex].cardHorizontalStatus, {
+				toValue: HorizontalStatus.Center,
+				useNativeDriver: true,
+			}),
+			Animated.spring(this.cards[centerIndex].positionInStack, {
+				toValue: PositionInStack.Second,
+				useNativeDriver: true,
+			}),
+			Animated.spring(this.cards[centerIndex].cardHorizontalStatus, {
+				toValue: HorizontalStatus.Center,
+				useNativeDriver: true,
+			}),
+			Animated.spring(this.cards[secondIndex].positionInStack, {
+				toValue: PositionInStack.Third,
+				useNativeDriver: true,
+			}),
+			Animated.spring(this.cards[secondIndex].cardHorizontalStatus, {
+				toValue: HorizontalStatus.Center,
+				useNativeDriver: true,
+			}),
+			Animated.spring(this.cards[thirdIndex].positionInStack, {
+				toValue: PositionInStack.Fourth,
+				useNativeDriver: true,
+			}),
+			Animated.spring(this.cards[thirdIndex].cardHorizontalStatus, {
+				toValue: HorizontalStatus.Center,
+				useNativeDriver: true,
+			}),
+		]).start();
+		this.cards[fourthIndex].positionInStack.setValue(PositionInStack.Hidden);
+		this.cards[fourthIndex].indexForData = this.state.currentIndex - 2;
+		this.setState({ cardIndexInCenter: hiddenIndex, currentIndex: this.state.currentIndex - 1 });
+	}
 
 	getCardAnimations(
 		height: number,
