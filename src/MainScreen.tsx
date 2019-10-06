@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Animated, View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { Cards } from './Cards';
 
 type LikedItem = {
@@ -14,17 +15,43 @@ type TrashItem = {
 
 type Items = LikedItem | TrashItem;
 
+type ImageItem = {
+	img_src: string;
+	roverName: string;
+	date: Date;
+	cameraName: string;
+};
 interface State {
 	stack: Array<Items>;
+	data: Array<ImageItem>;
 }
 
+const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
 export class MainScreen extends React.Component<null, State> {
+	constructor(props) {
+		super(props);
+
+		fetch(
+			'https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=1000&api_key=DEMO_KEY'
+		)
+			.then(res => res.json())
+			.then(res => {
+				this.setState({
+					data: res.photos.map(({ camera, img_src, earth_date, rover }) => ({
+						imgSrc: img_src,
+						roverName: rover.name,
+						date: new Date(earth_date),
+						cameraName: camera.full_name,
+					})),
+				});
+			});
+	}
+
 	state: State = {
 		stack: [],
+		data: null,
 	};
-	data = Array(10)
-		.fill(null)
-		.map((_, index) => 'Image ' + index);
 
 	cards = React.createRef<Cards>();
 
@@ -74,13 +101,41 @@ export class MainScreen extends React.Component<null, State> {
 						<TouchableOpacity
 							style={styles.headerFav}
 							hitSlop={{ left: 16, top: 16, right: 16, bottom: 16 }}>
-							<Image source={require('./icons/fav-icon.png')} style={{ width: 23, height: 20 }} />
+							<Image source={require('./icons/fav-icon.png')} style={styles.headerFavIcon} />
 						</TouchableOpacity>
 					</View>
 				</View>
-				<Cards ref={this.cards} data={this.data} onLike={this.onLike} onTrash={this.onTrash}>
-					{data => <Text>{data}</Text>}
-				</Cards>
+				{this.state.data == null ? (
+					<View style={{ flex: 1 }}></View>
+				) : (
+					<Cards
+						ref={this.cards}
+						data={this.state.data}
+						onLike={this.onLike}
+						onTrash={this.onTrash}>
+						{(data: ImageItem) => (
+							<>
+								<Image source={{ uri: data.imgSrc }} style={styles.itemImage} />
+								<LinearGradient
+									colors={['rgba(0,0,0,0.8)', 'rgba(235,87,87,0)']}
+									style={styles.itemInfo}>
+									<Text style={styles.itemTitleText}>{data.roverName}</Text>
+									<Text style={styles.itemSecondaryText}>{data.cameraName}</Text>
+									<Text style={styles.itemSecondaryText}>
+										{months[data.date.getMonth()]} {data.date.getDay()}, {data.date.getFullYear()}
+									</Text>
+								</LinearGradient>
+							</>
+						)}
+					</Cards>
+				)}
+				<View style={styles.bottomDescriptionWrapper}>
+					<Text style={styles.bottomDescription}>
+						{this.state.data == null
+							? 'Downloading'
+							: `${this.state.data.length - this.state.stack.length} cards`}
+					</Text>
+				</View>
 			</View>
 		);
 	}
@@ -89,12 +144,12 @@ export class MainScreen extends React.Component<null, State> {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		marginVertical: 100,
+		marginVertical: 60,
 		position: 'relative',
-		//paddingTop: 32, // for Android
 	},
 	header: {
 		flexDirection: 'row',
+		marginBottom: 30,
 	},
 	headerUndo: {
 		fontWeight: '500',
@@ -112,5 +167,43 @@ const styles = StyleSheet.create({
 	headerFav: {
 		alignSelf: 'flex-end',
 		marginRight: 16,
+	},
+	headerFavIcon: {
+		width: 23,
+		height: 20,
+	},
+	itemImage: {
+		...StyleSheet.absoluteFillObject,
+		top: -5,
+		bottom: -5,
+		aspectRatio: 1,
+	},
+	itemInfo: {
+		...StyleSheet.absoluteFillObject,
+		padding: 24,
+	},
+	itemTitleText: {
+		fontWeight: '500',
+		fontSize: 20,
+		letterSpacing: 0.15,
+		color: 'white',
+		marginBottom: 4,
+	},
+	itemSecondaryText: {
+		fontSize: 14,
+		letterSpacing: 0.75,
+		color: 'white',
+	},
+	bottomDescriptionWrapper: {
+		height: 20,
+		marginTop: 16,
+		marginBottom: 17,
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
+	bottomDescription: {
+		fontSize: 14,
+		letterSpacing: 0.75,
+		color: '#727C81',
 	},
 });

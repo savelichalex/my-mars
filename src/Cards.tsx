@@ -266,7 +266,8 @@ export class Cards extends React.Component<Props, State> {
 		if (index < 0 || index >= this.props.data.length) {
 			return null;
 		}
-		return this.props.children(this.props.data[index]);
+		const data = this.props.data[index];
+		return data != null ? this.props.children(data) : null;
 	}
 
 	private getZIndex = (index: number) => {
@@ -311,7 +312,7 @@ export class Cards extends React.Component<Props, State> {
 											],
 										},
 									]}>
-									{this.renderCardChildren(i.indexForData)}
+									<View style={styles.cardInner}>{this.renderCardChildren(i.indexForData)}</View>
 								</Animated.View>
 							);
 						})}
@@ -363,9 +364,8 @@ export class Cards extends React.Component<Props, State> {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		marginVertical: 150,
 		position: 'relative',
-		//paddingTop: 32, // for Android
+		paddingTop: 32, // space for two card tops
 	},
 	card: {
 		flex: 1,
@@ -374,9 +374,8 @@ const styles = StyleSheet.create({
 		bottom: 0,
 		left: '5%',
 		right: '5%',
-		backgroundColor: 'yellow',
+		backgroundColor: 'white',
 		borderRadius: 8,
-		padding: 20,
 		shadowColor: 'rgb(16, 32, 39)',
 		shadowOpacity: 0.16,
 		shadowRadius: 24,
@@ -384,6 +383,11 @@ const styles = StyleSheet.create({
 			width: 0,
 			height: 16,
 		},
+	},
+	cardInner: {
+		flex: 1,
+		overflow: 'hidden',
+		borderRadius: 8,
 	},
 	buttonsWrapper: {
 		position: 'absolute',
@@ -401,6 +405,13 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'center',
 		position: 'relative',
+		shadowColor: 'rgb(16, 32, 39)',
+		shadowOpacity: 0.16,
+		shadowRadius: 24,
+		shadowOffset: {
+			width: 0,
+			height: 16,
+		},
 	},
 	buttonBack: {
 		borderRadius: 28,
