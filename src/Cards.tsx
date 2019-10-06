@@ -215,6 +215,7 @@ export class Cards extends React.Component<Props, State> {
 			}),
 		]).start();
 		this.cards[fourthIndex].positionInStack.setValue(PositionInStack.Hidden);
+		this.cards[fourthIndex].cardHorizontalStatus.setValue(HorizontalStatus.Left);
 		this.cards[fourthIndex].indexForData = this.state.currentIndex - 2;
 		this.setState({ cardIndexInCenter: hiddenIndex, currentIndex: this.state.currentIndex - 1 });
 	}
