@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Animated, View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { MaterialIndicator } from 'react-native-indicators';
 import { Cards } from './Cards';
 
 type LikedItem = {
@@ -85,7 +86,7 @@ export class MainScreen extends React.Component<null, State> {
 		return (
 			<View style={styles.container}>
 				<View style={styles.header}>
-					<View style={{ flex: 1 }}>
+					<View style={styles.headerItem}>
 						{this.state.stack.length > 0 && (
 							<TouchableOpacity
 								onPress={this.undo}
@@ -94,10 +95,10 @@ export class MainScreen extends React.Component<null, State> {
 							</TouchableOpacity>
 						)}
 					</View>
-					<View style={{ flex: 1 }}>
+					<View style={styles.headerItem}>
 						<Text style={styles.headerTitle}>My Mars</Text>
 					</View>
-					<View style={{ flex: 1 }}>
+					<View style={styles.headerItem}>
 						<TouchableOpacity
 							style={styles.headerFav}
 							hitSlop={{ left: 16, top: 16, right: 16, bottom: 16 }}>
@@ -106,7 +107,9 @@ export class MainScreen extends React.Component<null, State> {
 					</View>
 				</View>
 				{this.state.data == null ? (
-					<View style={{ flex: 1 }}></View>
+					<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+						<MaterialIndicator color="#EB5757" size={40} trackWidth={2} />
+					</View>
 				) : (
 					<Cards
 						ref={this.cards}
@@ -149,7 +152,12 @@ const styles = StyleSheet.create({
 	},
 	header: {
 		flexDirection: 'row',
-		marginBottom: 30,
+		height: 56,
+		marginBottom: 16,
+	},
+	headerItem: {
+		flex: 1,
+		justifyContent: 'center',
 	},
 	headerUndo: {
 		fontWeight: '500',
