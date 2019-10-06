@@ -1,5 +1,13 @@
 import * as React from 'react';
-import { Animated, View, Text, Dimensions, StyleSheet, LayoutChangeEvent } from 'react-native';
+import {
+	Animated,
+	View,
+	Text,
+	Dimensions,
+	StyleSheet,
+	LayoutChangeEvent,
+	Image,
+} from 'react-native';
 import {
 	PanGestureHandler,
 	PanGestureHandlerGestureEvent,
@@ -84,7 +92,7 @@ export class Cards extends React.Component<Props, State> {
 		if (state === State.CANCELLED || state === State.END) {
 			const { centerIndex, secondIndex, thirdIndex, fourthIndex, hiddenIndex } = this.getIndexes();
 			Animated.spring(this.cardStatus, {
-				delay: 100,
+				delay: 200,
 				toValue: 0,
 				useNativeDriver: true,
 			}).start();
@@ -310,28 +318,40 @@ export class Cards extends React.Component<Props, State> {
 				</PanGestureHandler>
 				<View style={styles.buttonsWrapper}>
 					<View style={styles.buttonWrapper}>
-						<Animated.View
-							style={[
-								styles.button,
-								styles.buttonLeft,
-								{
-									opacity: this.leftButtonOpacity,
-									transform: [{ scale: this.leftButtonScale }],
-								},
-							]}
-						/>
+						<View style={styles.button}>
+							<Animated.View
+								style={[
+									styles.buttonBack,
+									styles.buttonLeft,
+									{
+										opacity: this.leftButtonOpacity,
+										transform: [{ scale: this.leftButtonScale }],
+									},
+								]}
+							/>
+							<Image
+								source={require('./icons/trash-icon.png')}
+								style={{ width: 24, height: 22, marginTop: 2 }}
+							/>
+						</View>
 					</View>
 					<View style={styles.buttonWrapper}>
-						<Animated.View
-							style={[
-								styles.button,
-								styles.buttonRight,
-								{
-									opacity: this.rightButtonOpacity,
-									transform: [{ scale: this.rightButtonScale }],
-								},
-							]}
-						/>
+						<View style={styles.button}>
+							<Animated.View
+								style={[
+									styles.buttonBack,
+									styles.buttonRight,
+									{
+										opacity: this.rightButtonOpacity,
+										transform: [{ scale: this.rightButtonScale }],
+									},
+								]}
+							/>
+							<Image
+								source={require('./icons/like-icon.png')}
+								style={{ width: 24, height: 22, marginBottom: 2 }}
+							/>
+						</View>
 					</View>
 				</View>
 			</View>
@@ -377,12 +397,18 @@ const styles = StyleSheet.create({
 	button: {
 		width: 56,
 		height: 56,
+		alignItems: 'center',
+		justifyContent: 'center',
+		position: 'relative',
+	},
+	buttonBack: {
 		borderRadius: 28,
+		...StyleSheet.absoluteFillObject,
 	},
 	buttonLeft: {
 		backgroundColor: 'black',
 	},
 	buttonRight: {
-		backgroundColor: 'red',
+		backgroundColor: '#EB5757',
 	},
 });

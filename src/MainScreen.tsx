@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Animated, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Animated, View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Cards } from './Cards';
 
 type LikedItem = {
@@ -71,7 +71,11 @@ export class MainScreen extends React.Component<null, State> {
 						<Text style={styles.headerTitle}>My Mars</Text>
 					</View>
 					<View style={{ flex: 1 }}>
-						<Text style={{ textAlign: 'right' }}>Fav</Text>
+						<TouchableOpacity
+							style={styles.headerFav}
+							hitSlop={{ left: 16, top: 16, right: 16, bottom: 16 }}>
+							<Image source={require('./icons/fav-icon.png')} style={{ width: 23, height: 20 }} />
+						</TouchableOpacity>
 					</View>
 				</View>
 				<Cards ref={this.cards} data={this.data} onLike={this.onLike} onTrash={this.onTrash}>
@@ -104,5 +108,9 @@ const styles = StyleSheet.create({
 		fontWeight: '500',
 		fontSize: 18,
 		letterSpacing: 0.5,
+	},
+	headerFav: {
+		alignSelf: 'flex-end',
+		marginRight: 16,
 	},
 });
