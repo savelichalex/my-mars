@@ -41,6 +41,11 @@ export class MainScreen extends React.Component<null, State> {
 	constructor(props) {
 		super(props);
 
+		// In a big application, it's definetely
+		// not a best place to keep business logic
+		// especially if you need things like offline support
+		// But for this application a simplest solution is better IMO
+		// it's easy and straightforward
 		const API_KEY = 'houOH3QDrs78RuJ32ZOxoZEmHZ9d1YUpabVdmBEp';
 		fetch(
 			`https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=1000&api_key=${API_KEY}`
@@ -67,9 +72,9 @@ export class MainScreen extends React.Component<null, State> {
 		data: null,
 	};
 
-	cards = React.createRef<Cards>();
+	private cards = React.createRef<Cards>();
 
-	undo = () => {
+	private undo = () => {
 		const stack = this.state.stack.slice();
 		const lastItem = stack.pop();
 		switch (lastItem.kind) {
@@ -83,25 +88,25 @@ export class MainScreen extends React.Component<null, State> {
 		this.setState({ stack });
 	};
 
-	onGoToFavs = () => {
+	private onGoToFavs = () => {
 		NativeModules.NavigationManager.present('GalleryScreen', {
 			photos: this.state.stack
 				.filter(({ kind }) => kind === 'Liked')
 				.map(({ index }) => ({
 					...this.state.data[index],
-					// by some reason Date is not passed properly
+					// by some reason Date is not passed properly through bridge
 					date: this.state.data[index].date.toDateString(),
 				})),
 		});
 	};
 
-	onLike = index => {
+	private onLike = index => {
 		this.setState({
 			stack: this.state.stack.concat([{ kind: 'Liked', index }]),
 		});
 	};
 
-	onTrash = index => {
+	private onTrash = index => {
 		this.setState({
 			stack: this.state.stack.concat([{ kind: 'Trashed', index }]),
 		});
@@ -197,6 +202,8 @@ const styles = StyleSheet.create({
 		marginLeft: 16,
 	},
 	headerTitle: {
+		// I didn't find out how to extract font from mock ups, sorry
+		// fontFamily: 'IBM Plex Sans',
 		textAlign: 'center',
 		fontWeight: '500',
 		fontSize: 18,

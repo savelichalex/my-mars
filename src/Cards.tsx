@@ -51,41 +51,38 @@ export class Cards extends React.Component<Props, State> {
 		currentIndex: 0,
 	};
 
-	cardStatus = new Animated.Value(0);
-	cardTranslateX = this.cardStatus.interpolate({
-		inputRange: [-1, 0, 1],
-		outputRange: [-width, 0, width],
-	});
-
-	leftButtonScale = this.cardStatus.interpolate({
+	// Buttons animations
+	private cardStatus = new Animated.Value(0);
+	private leftButtonScale = this.cardStatus.interpolate({
 		inputRange: [-0.5, 0],
 		outputRange: [1.3, 1],
 		extrapolate: 'clamp',
 	});
-	leftButtonOpacity = this.cardStatus.interpolate({
+	private leftButtonOpacity = this.cardStatus.interpolate({
 		inputRange: [0, 0.5],
 		outputRange: [1, 0.5],
 		extrapolate: 'clamp',
 	});
-	rightButtonScale = this.cardStatus.interpolate({
+	private rightButtonScale = this.cardStatus.interpolate({
 		inputRange: [0, 0.5],
 		outputRange: [1, 1.3],
 		extrapolate: 'clamp',
 	});
-	rightButtonOpacity = this.cardStatus.interpolate({
+	private rightButtonOpacity = this.cardStatus.interpolate({
 		inputRange: [-0.5, 0],
 		outputRange: [0.5, 1],
 		extrapolate: 'clamp',
 	});
 
-	onPan = ({ nativeEvent: { translationX, state } }: PanGestureHandlerGestureEvent) => {
+	// Pan gesture handling
+	private onPan = ({ nativeEvent: { translationX, state } }: PanGestureHandlerGestureEvent) => {
 		const factor = translationX / width;
 		const index = this.state.cardIndexInCenter;
 		this.cards[index].cardHorizontalStatus.setValue(factor);
 		this.cardStatus.setValue(factor);
 	};
 
-	onPanStateChange = ({
+	private onPanStateChange = ({
 		nativeEvent: { translationX, state },
 	}: PanGestureHandlerStateChangeEvent) => {
 		const factor = translationX / width;
@@ -144,7 +141,7 @@ export class Cards extends React.Component<Props, State> {
 		}
 	};
 
-	getIndexes() {
+	private getIndexes() {
 		const centerIndex = this.state.cardIndexInCenter;
 		let secondIndex = centerIndex - 1;
 		if (secondIndex < 0) {
@@ -171,6 +168,7 @@ export class Cards extends React.Component<Props, State> {
 		};
 	}
 
+	// For undo
 	goBackFromLeft() {
 		const { hiddenIndex } = this.getIndexes();
 		this.cards[hiddenIndex].cardHorizontalStatus.setValue(HorizontalStatus.Left);
@@ -221,7 +219,8 @@ export class Cards extends React.Component<Props, State> {
 		this.setState({ cardIndexInCenter: hiddenIndex, currentIndex: this.state.currentIndex - 1 });
 	}
 
-	getCardAnimations(
+	// Cards animations
+	private createCardAnimations(
 		height: number,
 		index: number,
 		position: PositionInStack,
@@ -254,19 +253,22 @@ export class Cards extends React.Component<Props, State> {
 			}),
 		};
 	}
-	getCards = height => [
-		this.getCardAnimations(height, 3, PositionInStack.Fourth),
-		this.getCardAnimations(height, 2, PositionInStack.Third),
-		this.getCardAnimations(height, 1, PositionInStack.Second),
-		this.getCardAnimations(height, 0, PositionInStack.Front),
-		this.getCardAnimations(height, null, PositionInStack.Hidden, HorizontalStatus.Left),
+
+	// We use the same 5 views for cards,
+	// just to reduce re-rendering here
+	// it should operate like a virtualization
+	// in FlatList or similar things
+	private createCards = height => [
+		this.createCardAnimations(height, 3, PositionInStack.Fourth),
+		this.createCardAnimations(height, 2, PositionInStack.Third),
+		this.createCardAnimations(height, 1, PositionInStack.Second),
+		this.createCardAnimations(height, 0, PositionInStack.Front),
+		this.createCardAnimations(height, null, PositionInStack.Hidden, HorizontalStatus.Left),
 	];
-	cards = this.getCards(0);
+	// We need to render smth, just to get proper height then
+	private cards = this.createCards(0);
 
 	private renderCardChildren(index) {
-		if (index < 0 || index >= this.props.data.length) {
-			return null;
-		}
 		const data = this.props.data[index];
 		return data != null ? this.props.children(data) : null;
 	}
@@ -290,7 +292,7 @@ export class Cards extends React.Component<Props, State> {
 					},
 				}: LayoutChangeEvent) => {
 					this.setState({ cardHeight: height });
-					this.cards = this.getCards(height);
+					this.cards = this.createCards(height);
 				}}>
 				<PanGestureHandler onGestureEvent={this.onPan} onHandlerStateChange={this.onPanStateChange}>
 					<View style={{ flex: 1 }}>
@@ -366,15 +368,17 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		position: 'relative',
-		paddingTop: 32, // space for two card tops
+		paddingTop: 32, // space for two visible cards top's
+		marginLeft: '5%',
+		marginRight: '5%',
 	},
 	card: {
 		flex: 1,
 		position: 'absolute',
 		top: 0,
 		bottom: 0,
-		left: '5%',
-		right: '5%',
+		left: 0,
+		right: 0,
 		backgroundColor: 'white',
 		borderRadius: 8,
 		shadowColor: 'rgb(16, 32, 39)',

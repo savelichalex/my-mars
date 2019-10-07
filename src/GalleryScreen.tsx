@@ -13,7 +13,7 @@ export const GalleryScreen = ({ photos }) =>
 			style={styles.list}
 			contentInsetAdjustmentBehavior="automatic"
 			data={photos.map((photo, index) => ({
-				key: index,
+				key: index.toString(),
 				...photo,
 			}))}
 			renderItem={({ item }) => (
