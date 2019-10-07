@@ -1,5 +1,14 @@
 import * as React from 'react';
-import { Animated, View, Text, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
+import {
+	Animated,
+	View,
+	Text,
+	StyleSheet,
+	TouchableOpacity,
+	Image,
+	Alert,
+	NativeModules,
+} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { MaterialIndicator } from 'react-native-indicators';
 import { Cards } from './Cards';
@@ -75,6 +84,14 @@ export class MainScreen extends React.Component<null, State> {
 		this.setState({ stack });
 	};
 
+	onGoToFavs = () => {
+		NativeModules.NavigationManager.present('GalleryScreen', {
+			photos: this.state.stack
+				.filter(({ kind }) => kind === 'Liked')
+				.map(({ index }) => this.state.data[index]),
+		});
+	};
+
 	onLike = index => {
 		this.setState({
 			stack: this.state.stack.concat([{ kind: 'Liked', index }]),
@@ -114,7 +131,8 @@ export class MainScreen extends React.Component<null, State> {
 					<View style={styles.headerItem}>
 						<TouchableOpacity
 							style={styles.headerFav}
-							hitSlop={{ left: 16, top: 16, right: 16, bottom: 16 }}>
+							hitSlop={{ left: 16, top: 16, right: 16, bottom: 16 }}
+							onPress={this.onGoToFavs}>
 							<Image source={require('./icons/fav-icon.png')} style={styles.headerFavIcon} />
 						</TouchableOpacity>
 					</View>

@@ -19,6 +19,8 @@
 		91F3A382689D6394F8825A5A /* libPods-CuriosityGalleryTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B9A9F4280AF096F93B49511E /* libPods-CuriosityGalleryTests.a */; };
 		934F09A37F29F8E912DF39A2 /* libPods-CuriosityGallery-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 356631E6BA3C2D31FC68182D /* libPods-CuriosityGallery-tvOS.a */; };
 		A605FDE6234A70C700ECDE58 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A605FDE5234A70C700ECDE58 /* MainViewController.m */; };
+		A605FDE9234B1DF800ECDE58 /* GalleryViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A605FDE8234B1DF800ECDE58 /* GalleryViewController.m */; };
+		A605FDEC234B20A200ECDE58 /* NavigationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A605FDEB234B20A200ECDE58 /* NavigationManager.m */; };
 		A9742014343E502037F69FD2 /* libPods-CuriosityGallery-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D06EA44104AE0B5F87464D6A /* libPods-CuriosityGallery-tvOSTests.a */; };
 		B91B9428B11125A79B24EFBE /* libPods-CuriosityGallery.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DD9AD8A6599205FEC39ADC9 /* libPods-CuriosityGallery.a */; };
 /* End PBXBuildFile section */
@@ -62,6 +64,10 @@
 		9DD9AD8A6599205FEC39ADC9 /* libPods-CuriosityGallery.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-CuriosityGallery.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A605FDE4234A70C700ECDE58 /* MainViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MainViewController.h; path = CuriosityGallery/MainViewController.h; sourceTree = "<group>"; };
 		A605FDE5234A70C700ECDE58 /* MainViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = MainViewController.m; path = CuriosityGallery/MainViewController.m; sourceTree = "<group>"; };
+		A605FDE7234B1DF800ECDE58 /* GalleryViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GalleryViewController.h; path = CuriosityGallery/GalleryViewController.h; sourceTree = "<group>"; };
+		A605FDE8234B1DF800ECDE58 /* GalleryViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = GalleryViewController.m; path = CuriosityGallery/GalleryViewController.m; sourceTree = "<group>"; };
+		A605FDEA234B20A200ECDE58 /* NavigationManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NavigationManager.h; path = CuriosityGallery/NavigationManager.h; sourceTree = "<group>"; };
+		A605FDEB234B20A200ECDE58 /* NavigationManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = NavigationManager.m; path = CuriosityGallery/NavigationManager.m; sourceTree = "<group>"; };
 		A7AFBCE06C0FD777C5B9D3CB /* Pods-CuriosityGallery.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CuriosityGallery.release.xcconfig"; path = "Target Support Files/Pods-CuriosityGallery/Pods-CuriosityGallery.release.xcconfig"; sourceTree = "<group>"; };
 		B9A9F4280AF096F93B49511E /* libPods-CuriosityGalleryTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-CuriosityGalleryTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC98870A482A49570B5F69B7 /* Pods-CuriosityGallery-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CuriosityGallery-tvOSTests.debug.xcconfig"; path = "Target Support Files/Pods-CuriosityGallery-tvOSTests/Pods-CuriosityGallery-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -137,6 +143,10 @@
 				13B07FB71A68108700A75B9A /* main.m */,
 				A605FDE4234A70C700ECDE58 /* MainViewController.h */,
 				A605FDE5234A70C700ECDE58 /* MainViewController.m */,
+				A605FDE7234B1DF800ECDE58 /* GalleryViewController.h */,
+				A605FDE8234B1DF800ECDE58 /* GalleryViewController.m */,
+				A605FDEA234B20A200ECDE58 /* NavigationManager.h */,
+				A605FDEB234B20A200ECDE58 /* NavigationManager.m */,
 			);
 			name = CuriosityGallery;
 			sourceTree = "<group>";
@@ -534,7 +544,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
+				A605FDE9234B1DF800ECDE58 /* GalleryViewController.m in Sources */,
 				A605FDE6234A70C700ECDE58 /* MainViewController.m in Sources */,
+				A605FDEC234B20A200ECDE58 /* NavigationManager.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

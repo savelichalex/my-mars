@@ -12,5 +12,7 @@ import { AppRegistry, YellowBox } from 'react-native';
 YellowBox.ignoreWarnings(['`-[RCTRootView cancelTouches]']);
 
 import { MainScreen } from './src/MainScreen';
+import { GalleryScreen } from './src/GalleryScreen';
 
 AppRegistry.registerComponent('MainScreen', () => MainScreen);
+AppRegistry.registerComponent('GalleryScreen', () => GalleryScreen);

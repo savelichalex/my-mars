@@ -12,4 +12,6 @@
 
 @property (nonatomic, strong) UIWindow *window;
 
+- (void)present:(NSString *)screenName andProps:(NSDictionary *)props;
+
 @end
