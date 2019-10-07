@@ -33,6 +33,7 @@
 
 - (void)viewWillAppear:(BOOL)animated {
   [super viewWillAppear:animated];
+  self.navigationItem.title = @"Gallery";
   [self.navigationController setNavigationBarHidden:NO animated:YES];
   self.navigationController.navigationBar.tintColor = [UIColor colorWithRed:0.92 green:0.34 blue:0.34 alpha:1.0];
 }
