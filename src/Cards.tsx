@@ -384,6 +384,7 @@ const styles = StyleSheet.create({
 			width: 0,
 			height: 16,
 		},
+		elevation: 10,
 	},
 	cardInner: {
 		flex: 1,
@@ -413,6 +414,7 @@ const styles = StyleSheet.create({
 			width: 0,
 			height: 16,
 		},
+		elevation: 10,
 	},
 	buttonBack: {
 		borderRadius: 28,

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { FlatList, View, Image, Text, StyleSheet } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { formatDate } from './helpers';
 
 export const GalleryScreen = ({ photos }) =>
 	photos.length === 0 ? (
@@ -20,9 +21,10 @@ export const GalleryScreen = ({ photos }) =>
 					<Image source={{ uri: item.imgSrc }} style={styles.listItemImage} />
 					<LinearGradient
 						style={styles.listItemInner}
-						colors={['rgba(0,0,0,0.8)', 'rgba(0,0,0,0.4)', 'rgba(235,87,87,0)']}>
+						colors={['rgba(0,0,0,0.8)', 'rgba(235,87,87,0.1)']}>
 						<Text style={styles.itemTitleText}>{item.roverName}</Text>
 						<Text style={styles.itemSecondaryText}>{item.cameraName}</Text>
+						<Text style={styles.itemSecondaryText}>{formatDate(new Date(item.date))}</Text>
 					</LinearGradient>
 				</View>
 			)}

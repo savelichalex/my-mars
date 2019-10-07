@@ -12,6 +12,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import { MaterialIndicator } from 'react-native-indicators';
 import { Cards } from './Cards';
+import { formatDate } from './helpers';
 
 type LikedItem = {
 	kind: 'Liked';
@@ -35,8 +36,6 @@ interface State {
 	stack: Array<Items>;
 	data: Array<ImageItem>;
 }
-
-const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 export class MainScreen extends React.Component<null, State> {
 	constructor(props) {
@@ -88,7 +87,11 @@ export class MainScreen extends React.Component<null, State> {
 		NativeModules.NavigationManager.present('GalleryScreen', {
 			photos: this.state.stack
 				.filter(({ kind }) => kind === 'Liked')
-				.map(({ index }) => this.state.data[index]),
+				.map(({ index }) => ({
+					...this.state.data[index],
+					// by some reason Date is not passed properly
+					date: this.state.data[index].date.toDateString(),
+				})),
 		});
 	};
 
@@ -155,9 +158,7 @@ export class MainScreen extends React.Component<null, State> {
 									style={styles.itemInfo}>
 									<Text style={styles.itemTitleText}>{data.roverName}</Text>
 									<Text style={styles.itemSecondaryText}>{data.cameraName}</Text>
-									<Text style={styles.itemSecondaryText}>
-										{months[data.date.getMonth()]} {data.date.getDay()}, {data.date.getFullYear()}
-									</Text>
+									<Text style={styles.itemSecondaryText}>{formatDate(data.date)}</Text>
 								</LinearGradient>
 							</>
 						)}
