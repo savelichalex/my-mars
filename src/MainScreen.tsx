@@ -200,6 +200,7 @@ const styles = StyleSheet.create({
 		fontWeight: '500',
 		fontSize: 18,
 		letterSpacing: 0.5,
+		color: '#102027',
 	},
 	headerFav: {
 		alignSelf: 'flex-end',
