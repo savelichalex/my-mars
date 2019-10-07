@@ -8,6 +8,7 @@ import {
 	Image,
 	Alert,
 	NativeModules,
+	StatusBar,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { MaterialIndicator } from 'react-native-indicators';
@@ -121,6 +122,7 @@ export class MainScreen extends React.Component<null, State> {
 		);
 		return (
 			<View style={styles.container}>
+				<StatusBar barStyle="dark-content" />
 				<View style={styles.header}>
 					<View style={styles.headerItem}>
 						{this.state.stack.length > 0 ? (
