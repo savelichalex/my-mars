@@ -83,7 +83,7 @@ export class Cards extends React.Component<Props, State> {
 	};
 
 	private onPanStateChange = ({
-		nativeEvent: { translationX, state },
+		nativeEvent: { translationX, state, velocityX },
 	}: PanGestureHandlerStateChangeEvent) => {
 		const factor = translationX / width;
 		if (state === State.CANCELLED || state === State.END) {
@@ -93,15 +93,9 @@ export class Cards extends React.Component<Props, State> {
 				toValue: 0,
 				useNativeDriver: true,
 			}).start();
-			if (Math.abs(factor) < 0.5) {
-				Animated.spring(this.cards[centerIndex].cardHorizontalStatus, {
-					toValue: 0,
-					useNativeDriver: true,
-				}).start();
-				return;
-			} else {
+			if (Math.abs(factor) > 0.5 || Math.abs(velocityX) > 1000) {
 				Animated.parallel([
-					factor > 0.5
+					velocityX > 0
 						? Animated.spring(this.cards[centerIndex].cardHorizontalStatus, {
 								toValue: HorizontalStatus.Right,
 								useNativeDriver: true,
@@ -136,6 +130,12 @@ export class Cards extends React.Component<Props, State> {
 				} else {
 					this.props.onTrash(this.cards[centerIndex].indexForData);
 				}
+				return;
+			} else {
+				Animated.spring(this.cards[centerIndex].cardHorizontalStatus, {
+					toValue: 0,
+					useNativeDriver: true,
+				}).start();
 				return;
 			}
 		}
@@ -274,7 +274,7 @@ export class Cards extends React.Component<Props, State> {
 	}
 
 	private getZIndex = (index: number) => {
-		const step = PositionInStack.Hidden - this.state.cardIndexInCenter;
+		const step = PositionInStack.Hidden - this.state.cardIndexInCenter - 1;
 		const zIndex = index + step;
 		if (zIndex > PositionInStack.Hidden) {
 			return zIndex - PositionInStack.Hidden - 1;
